@@ -8,4 +8,4 @@ def bye():
 
 print(hello())
 
-print(Hello world hi others)
+print(Hello world)
