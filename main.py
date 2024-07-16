@@ -1,11 +1,7 @@
-import os
-import subprocess
+number = 0  # This will be updated by the GitHub Actions workflow
 
-# Get the secret from the GitHub Actions environment
-secret = os.getenv("AZURE API KEY")
+def main():
+    return number
 
-# Print the secret value
-print(f"The secret value is: {secret}")
-
-# Run the main.py file
-subprocess.run(["python", "main.py"])
+if __name__ == "__main__":
+    print(main())
