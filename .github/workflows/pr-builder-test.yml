@@ -23,6 +23,8 @@ jobs:
           # Assign the secret value to the 'number' variable in main.py
           sed -i "s/^number = .*$/number = '$AZURE_API_KEY'/" main.py
       - name: Run main.py
+        env:
+          AZURE_API_KEY: ${{ secrets.AZURE_API_KEY }}
         run: |
           python main.py
           echo "The return value of main.py is: $?"
