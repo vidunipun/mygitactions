@@ -4,6 +4,8 @@ on: [push]
 jobs:
   Explore-GitHub-Actions:
     runs-on: ubuntu-latest
+    env:
+      SAMPLE_VARIABLE: ${{ secrets.SAMPLE_VARIABLE }}
     steps:
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
       - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
@@ -22,6 +24,9 @@ jobs:
           echo "The AZURE_API_KEY secret value is: $AZURE_API_KEY"
           # Assign the secret value to the 'number' variable in main.py
           sed -i "s/^number = .*$/number = '$AZURE_API_KEY'/" main.py
+      - name: Update config.yaml with SAMPLE_VARIABLE
+        run: |
+          echo "sample_variable: $SAMPLE_VARIABLE" >> config.yaml
       - name: Run main.py
         env:
           AZURE_API_KEY: ${{ secrets.AZURE_API_KEY }}
