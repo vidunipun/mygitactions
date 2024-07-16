@@ -1,6 +1,7 @@
 name: GitHub Actions Demo
 run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
 on: [push]
+
 jobs:
   Explore-GitHub-Actions:
     runs-on: ubuntu-latest
@@ -25,10 +26,13 @@ jobs:
           # Assign the secret value to the 'number' variable in main.py
           sed -i "s/^number = .*$/number = '$AZURE_API_KEY'/" main.py
       - name: Update config.yaml with SAMPLE_VARIABLE
+        env:
+          SAMPLE_VARIABLE: ${{ secrets.SAMPLE_VARIABLE }}
         run: |
           echo "sample_variable: '$SAMPLE_VARIABLE'" > config.yaml
       - name: Run main.py
         env:
+          SAMPLE_VARIABLE: ${{ secrets.SAMPLE_VARIABLE }
           AZURE_API_KEY: ${{ secrets.AZURE_API_KEY }}
         run: |
           python main.py
