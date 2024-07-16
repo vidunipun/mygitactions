@@ -1,51 +1,27 @@
-name: PR Merge Check
+name: Check Action Secret
 
 on:
-  workflow_dispatch:
-    inputs:
-      pr:
-        description: 'Enter PR link (e.g., https://github.com/wso2-extensions/identity-inbound-auth-oauth/pull/1481)'
-        required: true
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
 
-  merge-check:
+  check-secret:
     runs-on: ubuntu-latest
     
     steps:
     - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
       with:
-        fetch-depth: 0
-        
-    - name: Check if PR can be merged
-      id: merge-check
-      env:
-        PR_LINK: ${{ github.event.inputs.pr }}
+        python-version: 3.9
+    - name: Install dependencies
       run: |
-        owner=$(echo '$PR_LINK' | cut -d "/" -f 4)
-        repo=$(echo '$PR_LINK' | cut -d "/" -f 5)
-        pr_number=$(echo '$PR_LINK' | cut -d "/" -f 7)
-        
-        # Fetch the PR
-        git fetch origin pull/$pr_number/head:pr-$pr_number
-        
-        # Check if the PR can be merged
-        git checkout pr-$pr_number
-        git merge origin/main
-        
-        if [ $? -eq 0 ]; then
-          echo "::set-output name=mergeable::true"
-        else
-          echo "::set-output name=mergeable::false"
-        fi
-        
-    - name: Comment PR merge status
-      if: steps.merge-check.outputs.mergeable == 'false'
+        python -m pip install --upgrade pip
+    - name: Run run_main.py
       env:
-        PR_LINK: ${{ github.event.inputs.pr }}
+        MY_SECRET: ${{ secrets.MY_SECRET }}
       run: |
-        owner=$(echo '$PR_LINK' | cut -d "/" -f 4)
-        repo=$(echo '$PR_LINK' | cut -d "/" -f 5)
-        pr_number=$(echo '$PR_LINK' | cut -d "/" -f 7)
-        
-        curl -X POST https://api.github.com/repos/$owner/$repo/issues/$pr_number/comments -H 'Authorization: token ${{ secrets.GITHUB_TOKEN }}' -d '{"body":"The PR cannot be automatically merged. Please resolve the conflicts and try again."}'
+        python run_main.py
