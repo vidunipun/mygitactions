@@ -22,6 +22,7 @@ jobs:
         python -m pip install --upgrade pip
     - name: Run run_main.py
       env:
+        FORCE_JAVASCRIPT_ACTIONS_TO_NODE20: true
         MY_SECRET: ${{ secrets.AZURE_API_KEY }}
       run: |
         python run_main.py
