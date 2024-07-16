@@ -1,23 +1,11 @@
-def hello():
-    print("hi")
+import os
+import subprocess
 
+# Get the secret from the GitHub Actions environment
+secret = os.getenv("MY_SECRET")
 
-def bye():
-    print("bye")
+# Print the secret value
+print(f"The secret value is: {secret}")
 
-
-print(hello())
-
-print(Hello world)
-
-
-if (2== 1+1):
-    print(output is correct)
-
-
-number = 
-
-if number == 12345:
-    print("Hello, World!")
-else:
-    print("Number is not equal to 2.")
+# Run the main.py file
+subprocess.run(["python", "main.py"])
