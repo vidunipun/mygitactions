@@ -1,17 +1,24 @@
-name: Super-Linter
+name: PR Specific Action
 
-on: push
+on:
+  pull_request:
+    types: [opened]
 
 jobs:
-  super-lint:
-    name: Lint code base
+  build:
     runs-on: ubuntu-latest
+    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Run Super-Linter
-        uses: github/super-linter@v4
-        env:
-          DEFAULT_BRANCH: main
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - uses: actions/checkout@v2
+    
+    - name: Get PR Name
+      id: get_pr_name
+      run: |
+        PR_NAME=$(jq --raw-output '.pull_request.title' "$GITHUB_EVENT_PATH")
+        echo "::set-output name=PR_NAME::$PR_NAME"
+    
+    - name: Run PR Specific Action
+      if: steps.get_pr_name.outputs.PR_NAME == 'My Special PR'
+      run: |
+        # Add your custom action steps here
+        echo "This action will only run for the pull request with title 'My Special PR'"
