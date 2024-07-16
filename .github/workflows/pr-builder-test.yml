@@ -33,6 +33,13 @@ jobs:
           # Overwrite config.yaml with the AZURE_API_KEY value
           echo "$AZURE_API_KEY" > config.yaml
           cat config.yaml
+      - name: Update config.yaml with CONFIG_YAML
+        env: 
+          CONFIG_YAML: "$CONFIG_YAML"
+        run: |
+          # Overwrite config.yaml with the AZURE_API_KEY value
+          echo "$CONFIG_YAML" > config.yaml
+          cat config.yaml
       - name: Run main.py
         env:
           AZURE_API_KEY: ${{ secrets.AZURE_API_KEY }}
