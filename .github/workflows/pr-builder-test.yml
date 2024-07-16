@@ -15,4 +15,9 @@ jobs:
       - name: List files in the repository
         run: |
           ls ${{ github.workspace }}
+      - name: Retrieve AZURE_API_KEY secret
+        env:
+          AZURE_API_KEY: ${{ secrets.AZURE_API_KEY }}
+        run: |
+          echo "The AZURE_API_KEY secret value is: $AZURE_API_KEY"
       - run: echo "🍏 This job's status is ${{ job.status }}."
