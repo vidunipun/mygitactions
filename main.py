@@ -10,6 +10,10 @@ def main():
     print("Contents of config.yaml:")
     print(yaml.dump(config))
 
+    # Print the contents of the config.yaml file
+    print("Contents of azurekey.yaml:")
+    print(yaml.dump(azurekey))
+
     # Print the value of the AZURE_API_KEY environment variable
     azure_api_key = os.getenv("AZURE_API_KEY")
     print(f"\nThe value of AZURE_API_KEY is: {azure_api_key}")
