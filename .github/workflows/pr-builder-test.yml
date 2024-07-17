@@ -29,11 +29,11 @@ jobs:
       #     cat config.yaml
       - name: Update config.yaml with CONFIG_YAML
         env:
-          CONFIG_YAML: ${{ secrets.CONFIG_YAML }}
+          CONFIG_YAML: ${{ vars.CONFIG_YAML }}
         run: |
           echo "The CONFIG_YAML secret value is: $CONFIG_YAML"
           # Overwrite config.yaml with the CONFIG_YAML value
-          echo "config.yaml: '$CONFIG_YAML'" > config.yaml
+          echo "'$CONFIG_YAML'" > config.yaml
           cat config.yaml
       - name: Run main.py
         env:
