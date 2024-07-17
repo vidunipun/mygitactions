@@ -1,0 +1,45 @@
+# .github/workflows/tests.yml
+
+name: Branding AI json object evaluation tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: "Enter PR link (ex: https://github.com/wso2-extensions/identity-inbound-auth-oauth/pull/1481)"
+        default:
+        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Print Input
+        run: echo Running the PR builder for PR - ${{ github.event.inputs.pr }}
+      - name: Comment build info
+        run: |
+          owner=$(echo '${{github.event.inputs.pr}}' | cut -d "/" -f 4)
+          repo=$(echo '${{github.event.inputs.pr}}' | cut -d "/" -f 5)
+          pr_number=$(echo '${{github.event.inputs.pr}}' | cut -d "/" -f 7)
+          curl -X POST https://api.github.com/repos/$owner/$repo/issues/$pr_number/comments -H 'Authorization: token ${{secrets.PR_BUILDER_COMMENT}}' -d '{"body":"PR builder started \nLink: https://github.com/wso2/product-is/actions/runs/${{github.run_id}}"}'
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest
+      - name: Update config.yaml with CONFIG_YAML
+        env:
+          CONFIG_YAML: ${{ vars.CONFIG_YAML}}
+        run: |
+          echo "The CONFIG_YAML secret value is: $CONFIG_YAML"
+          # Overwrite config.yaml with the CONFIG_YAML value
+          echo "'$CONFIG_YAML'" > config.yaml
+          cat config.yaml
+      - name: Run tests
+        run: |
+          pytest -v -m webtest
