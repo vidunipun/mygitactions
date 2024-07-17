@@ -1,37 +1,32 @@
-# .github/workflows/tests.yml
-
-name: Branding AI json object evaluation tests
-
-on:
-  workflow_dispatch:
-    inputs:
-      pr:
-        description: "Enter PR link (ex: https://github.com/wso2-extensions/identity-inbound-auth-oauth/pull/1481)"
-        default:
-        required: true
+name: GitHub Actions Demo
+run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
+on: [push]
 
 jobs:
-  build:
+  Explore-GitHub-Actions:
     runs-on: ubuntu-latest
-
+    env:
+      SAMPLE_VARIABLE: ${{ secrets.SAMPLE_VARIABLE }}
+      CONFIG_YAML: ${{ secrets.CONFIG_YAML }}
     steps:
-      - name: Print Input
-        run: echo Running the PR builder for PR - ${{ github.event.inputs.pr }}
-      - name: Comment build info
+      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
+      - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
+      - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
+      - run: echo "🖥️ The workflow is now ready to test your code on the runner."
+      - name: List files in the repository
         run: |
-          owner=$(echo '${{github.event.inputs.pr}}' | cut -d "/" -f 4)
-          repo=$(echo '${{github.event.inputs.pr}}' | cut -d "/" -f 5)
-          pr_number=$(echo '${{github.event.inputs.pr}}' | cut -d "/" -f 7)
-          curl -X POST https://api.github.com/repos/$owner/$repo/issues/$pr_number/comments -H 'Authorization: token ${{secrets.PR_BUILDER_COMMENT}}' -d '{"body":"PR builder started \nLink: https://github.com/wso2/product-is/actions/runs/${{github.run_id}}"}'
-      - uses: actions/checkout@v2
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.9
-      - name: Install dependencies
+          ls ${{ github.workspace}}
+      - name: Retrieve AZURE_API_KEY secret
+        env:
+          AZURE_API_KEY: ${{ secrets.AZURE_API_KEY }}
         run: |
-          python -m pip install --upgrade pip
-          pip install pytest
+          echo "The AZURE_API_KEY secret value is: $AZURE_API_KEY"
+          # Overwrite azurekey.yaml with the AZURE_API_KEY value
+          echo "azure_api_key: '$AZURE_API_KEY'" > azurekey.yaml
+          cat azurekey.yaml
       - name: Update config.yaml with CONFIG_YAML
         env:
           CONFIG_YAML: ${{ vars.CONFIG_YAML}}
@@ -40,6 +35,10 @@ jobs:
           # Overwrite config.yaml with the CONFIG_YAML value
           echo "'$CONFIG_YAML'" > config.yaml
           cat config.yaml
-      - name: Run tests
+      - name: Run main.py
+        env:
+          AZURE_API_KEY: ${{ secrets.AZURE_API_KEY }}
         run: |
-          pytest -v -m webtest
+          python main.py
+          echo "The return value of main.py is: $?"
+      - run: echo "🍏 This job's status is ${{ job.status }}."
