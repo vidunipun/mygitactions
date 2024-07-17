@@ -1,5 +1,3 @@
-# .github/workflows/tests.yml
-
 name: Branding AI json object evaluation tests
 
 on:
@@ -48,8 +46,15 @@ jobs:
           # Overwrite azurekey.yaml with the AZURE_API_KEY value
           echo "azure_api_key: '$AZURE_API_KEY'" > azurekey.yaml
           cat azurekey.yaml
+          # Load the config.yaml file
+          import yaml
+          with open('config.yaml', 'r') as file:
+              config = yaml.load(file, Loader=yaml.FullLoader)
           # Update the azureOpenAiApi.apiType field with the AZURE_API_KEY secret
           config['azureOpenAiApi']['apiType'] = "$AZURE_API_KEY"
+          # Save the updated config.yaml file
+          with open('config.yaml', 'w') as file:
+              yaml.dump(config, file)
       - name: Run tests
         env:
             CONFIG_YAML: ${{ vars.CONFIG_YAML}}
