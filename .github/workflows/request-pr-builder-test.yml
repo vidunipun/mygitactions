@@ -38,13 +38,14 @@ jobs:
           # Overwrite config.yaml with the CONFIG_YAML value
           echo "'$CONFIG_YAML'" > config.yaml
           cat config.yaml
-      - name: Retrieve AZURE_API_KEY secret
+      - name: Update config.yaml
         env:
           AZURE_API_KEY: ${{ secrets.AZURE_API_KEY }}
         run: |
-          echo "The AZURE_API_KEY secret value is: $AZURE_API_KEY"
-          # Assign the secret value to the 'apiType' variable in config.yaml
-          sed -i "s/^apiType = .*$/apiType = '$AZURE_API_KEY'/" config.yaml
+          # Update the apiType value in the config.yaml file
+          yq -i '.apiType = env(AZURE_API_KEY)' config.yaml
+          
+          # Display the updated config.yaml file
           cat config.yaml
       - name: Run tests
         env:
