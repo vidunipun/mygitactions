@@ -18,7 +18,7 @@ jobs:
       - run: echo "🖥️ The workflow is now ready to test your code on the runner."
       - name: List files in the repository
         run: |
-          ls ${{ github.workspace }}
+          ls ${{ github.workspace}}
       - name: Retrieve AZURE_API_KEY secret
         env:
           AZURE_API_KEY: ${{ secrets.AZURE_API_KEY }}
