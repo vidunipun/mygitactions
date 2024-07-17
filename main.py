@@ -5,6 +5,10 @@ import yaml
 with open("config.yaml", "r") as f:
     config = yaml.safe_load(f)
 
+# Load the azurekey.yaml file
+with open("azurekey.yaml", "r") as f:
+    azurekey = yaml.safe_load(f)
+
 def main():
     # Print the contents of the config.yaml file
     print("Contents of config.yaml:")
