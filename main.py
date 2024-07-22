@@ -5,7 +5,7 @@ import subprocess
 secret = os.getenv("MY_SECRET")
 
 # Print the secret value
-print(f"The secret value is: {secret}")
+print(f"The secret value is equal to : {secret}")
 
 # Run the main.py file
 subprocess.run(["python", "main.py"])
