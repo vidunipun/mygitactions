@@ -1,0 +1,38 @@
+name: PR Workflow - Create Example File
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  create-example-file:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Create Example File
+      run: |
+        mkdir -p assets
+        echo "Pull Request: ${{ github.event.pull_request.title }}" > assets/example.txt
+        echo "Date: $(date '+%Y-%m-%d %H:%M:%S')" >> assets/example.txt
+    
+    - name: Commit Example File
+      uses: actions-js/push@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        force: false
+        message: 'Create example.txt file'
+        branch: ${{ github.head_ref }}
+      if: github.event_name == 'pull_request'
+    
+    - name: Upload Example File
+      uses: actions/upload-artifact@v2
+      with:
+        name: example-artifact
+        path: assets/example.txt
+      if: github.event_name == 'push'
