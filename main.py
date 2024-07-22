@@ -22,6 +22,8 @@ def main():
     azure_api_key = os.getenv("AZURE_API_KEY")
     print(f"\nThe value of AZURE_API_KEY is: {azure_api_key}")
 
+
+    
     return config
 
 if __name__ == "__main__":
