@@ -5,9 +5,14 @@ import yaml
 with open("config.yaml", "r") as f:
     config = yaml.safe_load(f)
 
+
+# Print the secret value
+print(f"The secret value is equal to : {secret}")
+
 # Load the azurekey.yaml file
 with open("azurekey.yaml", "r") as f:
     azurekey = yaml.safe_load(f)
+
 
 def main():
     # Print the contents of the config.yaml file
