@@ -1,4 +1,4 @@
-name: Append to File
+name: Update Score
 
 on:
   push:
@@ -7,23 +7,29 @@ on:
 
 jobs:
 
-  append-to-file:
+  update-score:
     runs-on: ubuntu-latest
     
     steps:
     - uses: actions/checkout@v2
     
-    - name: Read File
-      id: read_file
+    - name: Read Score
+      id: read_score
       run: |
-        value=$(cat file.txt)
-        echo "::set-output name=file_content::$value"
+        score=$(cat ./app/tests/artifacts/score.txt)
+        echo "::set-output name=current_score::$score"
     
-    - name: Append to File
+    - name: Calculate New Score
+      id: calculate_score
       run: |
-        echo "${{ steps.read_file.outputs.file_content }}New Value" >> file.txt
+        new_score=$((${steps.read_score.outputs.current_score} + 5))
+        echo "::set-output name=new_score::$new_score"
+    
+    - name: Append to Score
+      run: |
+        echo "${{ steps.calculate_score.outputs.new_score }}" >> ./app/tests/artifacts/score.txt
     
     - name: Commit Changes
-      uses: stefanzweifel/git-auto-commit-action@v4
+      uses: stefanzweiler/git-auto-commit-action@v4
       with:
-        commit_message: Append to file.txt
+        commit_message: Update score.txt
