@@ -1,0 +1,29 @@
+name: Append to File
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+
+  append-to-file:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Read File
+      id: read_file
+      run: |
+        value=$(cat file.txt)
+        echo "::set-output name=file_content::$value"
+    
+    - name: Append to File
+      run: |
+        echo "${{ steps.read_file.outputs.file_content }}New Value" >> file.txt
+    
+    - name: Commit Changes
+      uses: stefanzweifel/git-auto-commit-action@v4
+      with:
+        commit_message: Append to file.txt
