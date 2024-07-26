@@ -29,7 +29,9 @@ jobs:
       run: |
         echo "${{ steps.calculate_score.outputs.new_score }}" >> file.txt
     
-    - name: Commit Changes
-      uses: stefanzweiler/git-auto-commit-action@v4
+    - name: Git Auto Commit
+      uses: stefanzweifel/git-auto-commit-action@v5.0.1
       with:
         commit_message: Update file.txt
+              
+            
