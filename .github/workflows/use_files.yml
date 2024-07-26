@@ -16,7 +16,7 @@ jobs:
     - name: Read Score
       id: read_score
       run: |
-        score=$(cat ./app/tests/artifacts/score.txt)
+        score=$(cat file.txt)
         echo "::set-output name=current_score::$score"
     
     - name: Calculate New Score
@@ -27,9 +27,9 @@ jobs:
     
     - name: Append to Score
       run: |
-        echo "${{ steps.calculate_score.outputs.new_score }}" >> ./app/tests/artifacts/score.txt
+        echo "${{ steps.calculate_score.outputs.new_score }}" >> file.txt
     
     - name: Commit Changes
       uses: stefanzweiler/git-auto-commit-action@v4
       with:
-        commit_message: Update score.txt
+        commit_message: Update file.txt
