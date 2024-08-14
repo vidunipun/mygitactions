@@ -1,0 +1,142 @@
+#  Copyright (c) 2024, WSO2 LLC. (http://www.wso2.com).
+#
+#  This software is the property of WSO2 LLC. and its suppliers, if any.
+#  Dissemination of any information or reproduction of any material contained
+#  herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+#  You may not alter or remove any copyright or other notice from copies of this content.
+
+name: branding-aip-pr-builder
+on:
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: "Enter PR link (ex: https://github.com/wso2-extensions/identity-inbound-auth-oauth/pull/1481)"
+        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        ref: 'ai-test-suite'
+        fetch-depth: 0
+        token: ${{ secrets.GIT_BOT_PAT }}
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+
+    - name: Configure Git
+      run: |
+        git config pull.rebase false
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git config --global user.name "github-actions[bot]"
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install \
+        pytest==8.0.0 \
+        pytest-cov==4.1.0 \
+        pytest-asyncio \
+        ruff~=0.3.2 \
+        black==24.3.0 \
+        fire==0.5.0 \
+        openai==1.12.0 \
+        langchain-openai==0.0.6 \
+        langchain-core==0.1.35 \
+        fastapi==0.109.2 \
+        pydantic~=2.6.1 \
+        httpx~=0.26.0 \
+        pyppeteer==1.0.2 \
+        langchain~=0.1.12 \
+        uvicorn~=0.27.1 \
+        PyYAML~=6.0.1 \
+        starlette~=0.36.3 \
+        requests~=2.31.0 \
+        azure-cosmos~=4.6.0 \
+        setuptools~=65.5.1 \
+        jsonschema==4.17.3
+
+    - name: Install GitHub CLI
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y gh
+
+    - name: Authenticate GitHub CLI
+      run: |
+        echo "${{ secrets.GIT_BOT_PAT }}" | gh auth login --with-token
+
+    - name: Fetch Previous Release Tag
+      id: fetch_previous_release
+      run: |
+        PREVIOUS_RELEASE_TAG=$(gh release list --limit 1 --json tagName --jq '.[0].tagName')
+        echo "PREVIOUS_RELEASE_TAG=$PREVIOUS_RELEASE_TAG" >> $GITHUB_ENV
+        echo "PREVIOUS_RELEASE_TAG : $PREVIOUS_RELEASE_TAG"
+
+    - name: Download Previous Release Asset
+      run: |
+        gh release download "$PREVIOUS_RELEASE_TAG" -p test_results.json -D ./previous_release
+
+    - name: Inspect test_results.json
+      run: |
+        cat ./previous_release/test_results.json
+        
+        echo "{" >> ./tests/artifacts/score_percentages.json
+        
+        # Assuming the JSON data is stored in the test_results.json file
+        while IFS= read -r line; do
+            website_url=$(echo "$line" | jq -r '.testing_website_url')
+            score_percentage=$(echo "$line" | jq -r '.generated_score_percentage')
+            echo "$website_url : $score_percentage"
+            echo "\"$website_url\" : $score_percentage," >> ./tests/artifacts/score_percentages.json
+        done < <(jq -c '.[]' ./previous_release/test_results.json)
+        
+        # Remove the last comma from the JSON file
+        sed -i '$ s/,$//g' ./tests/artifacts/score_percentages.json
+        
+        echo "}" >> ./tests/artifacts/score_percentages.json
+
+    - name: Overwrite score_percentages to score_percentages.json file
+      run: |
+        git checkout ai-test-suite
+        echo "Saving score_percentages to JSON"
+        git add ./tests/artifacts/score_percentages.json
+        git commit -m "Save score_percentage to JSON"
+        git push
+
+    - name: running tests
+      env:
+        AZURE_OPENAI_API_KEY: ${{ secrets.APIKEY }}
+        CONNECTION_STRING: ${{ secrets.CONNECTIONSTRING }}
+      run: pytest -v -m "webtest"
+
+    - name: Overwrite test results to test_results.json file
+      run: |
+        echo "Saving test_results.json file"
+        git add ./test_results.json
+        git commit -m "Save test_results.json file"
+        git push
+
+    - name: Upload test results JSON as artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: test-results
+        path: test_results.json
+
+#    - name: Update Version and Release
+#      env:
+#        GITHUB_TOKEN: ${{ secrets.GIT_BOT_PAT }}
+#      run: |
+#        bash release-builder.sh $GITHUB_TOKEN ${{ github.workspace }}
+
+#    - name: Upload JSON File to Release
+#      env:
+#        GITHUB_TOKEN: ${{ secrets.GIT_BOT_PAT }}
+#      run: |
+#        RELEASE_TAG=$(gh release list --limit 1 --json tagName --jq '.[0].tagName')
+#        gh release upload "$RELEASE_TAG" test_results.json
+
+
